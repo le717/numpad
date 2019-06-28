@@ -1,77 +1,77 @@
 (function(){
   "use strict";
   // For this demo, all keys preform the same action
-  var actions = {
+  const actions = {
     keyUp: displayKey,
     keyDown: displayKey
   };
 
-  var numpad = {
-    13: {
+  const numpad = {
+    "Enter": {
       class: ".key-enter",
       callback: actions
     },
-    96: {
+    "0": {
       class: ".key-zero",
       callback: actions
     },
-    97: {
+    "1": {
       class: ".key-one",
       callback: actions
     },
-    98: {
+    "2": {
       class: ".key-two",
       callback: actions
     },
-    99: {
+    "3": {
       class: ".key-three",
       callback: actions
     },
-    100: {
+    "4": {
       class: ".key-four",
       callback: actions
     },
-    101: {
+    "5": {
       class: ".key-five",
       callback: actions
     },
-    102: {
+    "6": {
       class: ".key-six",
       callback: actions
     },
-    103: {
+    "7": {
       class: ".key-seven",
       callback: actions
     },
-    104: {
+    "8": {
       class: ".key-eight",
       callback: actions
     },
-    105: {
+    "9": {
       class: ".key-nine",
       callback: actions
     },
-    106:  {
+    "*":  {
       class: ".key-multiply",
       callback: actions
     },
-    107: {
+    "+": {
       class: ".key-add",
       callback: actions
     },
-    109: {
+    "-": {
       class: ".key-subtract",
       callback: actions
     },
-    110: {
+    ".": {
       class: ".key-decimal",
       callback: actions
     },
-    111: {
+    "/": {
       class: ".key-divide",
       callback: actions
     },
-    144: {
+    "NumLock": {
       class: ".key-numlock",
       callback: actions
     },
@@ -84,7 +84,7 @@
    * @returnS {Object} The numpad key object.
    */
   function _getKeyObj(obj) {
-    return (obj.class ? obj : numpad[obj.keyCode]);
+    return (obj.class ? obj : numpad[obj.key]);
   }
 
   /**
@@ -119,8 +119,13 @@
    * @param {Object} e - A KeyboardEvent object.
    */
   function keyDown(e) {
-    if (e.keyCode in numpad) {
-      keyPress(numpad[e.keyCode]);
+    // Handle the numlock key specially
+    let isNumLockKey = e.location === 0 && e.key === "NumLock";
+
+    // Only activate if it's a key we know
+    let isNumpadKey = e.location === 3;
+    if ((isNumpadKey && e.key in numpad) || isNumLockKey) {
+      keyPress(numpad[e.key]);
     }
   }
 
@@ -131,18 +136,18 @@
    */
   function keyClick(e) {
     // Make sure we clicked a button
-    if (e.target.classList.contains("btn")) {
-      // Extract the button's class
-      var keyClass = "." + e.target.classList[e.target.classList.length - 1];
+    if (e.target.matches(".btn")) {
+      // Extract the button's key class
+      var keyClass = `.${e.target.className.match(/(key-\w+)/)[1]}`;
 
-      for (var keyCode in numpad) {
-        // Find the respective numpad key object and activate it
-        if (numpad.hasOwnProperty(keyCode) && keyClass === numpad[keyCode].class) {
-          var key = numpad[keyCode];
-          keyPress(key);
+      // Find the correct numpad key object and activate it
+      for (const key of Object.entries(numpad)) {
+         if (keyClass === key[1].class) {
+          const keyToPress = key[1];
+          keyPress(keyToPress);
 
           // Small delay to replicate the keyup event
-          setTimeout(keyUp, 100, key);
+          setTimeout(keyUp, 100, keyToPress);
           break;
         }
       }
@@ -150,23 +155,23 @@
   }
 
 
-  var Qbody    = document.querySelector("body"),
-      Qtable   = document.querySelector(".numpad table"),
-      QkeyArea = document.querySelector(".key-press-area");
+  const qBody    = document.querySelector("body");
+  const qTable   = document.querySelector(".numpad table");
+  const qKeyArea = document.querySelector(".key-press-area");
 
   // Activate the key
-  Qbody.addEventListener("keydown", keyDown);
+  qBody.addEventListener("keydown", keyDown);
 
   // Deactivate the key
-  Qbody.addEventListener("keyup", keyUp);
+  qBody.addEventListener("keyup", keyUp);
 
   // Clicked key
-  Qtable.addEventListener("click", keyClick);
+  qTable.addEventListener("click", keyClick);
 
   /**
    * Action to perform upon key press.
    */
   function displayKey() {
-    QkeyArea.classList.toggle("visible");
+    qKeyArea.classList.toggle("visible");
   }
 }());
